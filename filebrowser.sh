@@ -1,21 +1,18 @@
 #!/bin/bash
 set -euo pipefail    
-
-######################################################
-# 配置变量（端口语言日志等）
-######################################################
-
+####################################################################################
+# 配置变量（端口语言日志等）端口默认6070，中文语言
+# 其中默认 0.0.0.0 可直接公网IP+端口访问，127.0.0.1 须用域名反代 [::]支持IPv6
+####################################################################################
 ADDRESS=${ADDRESS:-0.0.0.0}    # 可选：127.0.0.1 / 0.0.0.0 / [::]
-LISTEN_PORT=${LISTEN_PORT:-8090}
-FB_LOCALE=${FB_LOCALE:-zh-cn}
-LOG_PATH=${LOG_PATH:-/var/log/filebrowser.log}
-
-# 主程序路径，官方脚本默认为 /usr/local/bin/ 修改为 /opt/filebrowser/
-BIN_PATH=${BIN_PATH:-/opt/filebrowser}
-DB_FILE="$BIN_PATH/filebrowser.db"
+LISTEN_PORT=${LISTEN_PORT:-6070}  # 端口
+FB_LOCALE=${FB_LOCALE:-zh-cn}     # 中文语言
+LOG_PATH=${LOG_PATH:-/var/log/filebrowser.log}  #日志位置
+BIN_PATH=${BIN_PATH:-/opt/filebrowser}  # 主程序目录，官方脚本默认为 /usr/local/bin/ 脚本统一为 /opt/filebrowser/
+DB_FILE="$BIN_PATH/filebrowser.db"   # 配置档案，同为 /opt/filebrowser/ 目录方便管理
 
 ######################################################
-# 官方脚本下载 filebrowser 并生成 systemd 服务
+# 官方脚本下载 filebrowser 并生成 systemd 管理服务
 ######################################################
 
 if [[ "${1:-}" != "-pw" && "${1:-}" != "-add" && "${1:-}" != "-ls" && "${1:-}" != "-upgrade" ]]; then
@@ -49,9 +46,9 @@ EOF
   systemctl daemon-reload
   systemctl enable filebrowser.service
 
-  ######################################################
-  # 初始化配置与添加用户
-  ######################################################
+######################################################
+# 初始化配置与添加用户
+######################################################
 
   mkdir -p "$(dirname "$LOG_PATH")"
   touch "$LOG_PATH"
@@ -63,8 +60,8 @@ EOF
     --log "$LOG_PATH"
 
   # 交互式输入用户名和密码
-  read -p "请输入用户名 (默认: admin): " INPUT_USER
-  read -p "请输入密码 (默认: 随机16位): " INPUT_PASS
+  read -p "请输入用户名，回车则默认: (admin): " INPUT_USER
+  read -p "请输入密码，回车则默认随机16位密码: " INPUT_PASS
 
   USERNAME=${INPUT_USER:-admin}
   PASSWORD=${INPUT_PASS:-$(openssl rand -base64 16 | tr -dc 'a-zA-Z0-9' | head -c16)}
@@ -75,22 +72,23 @@ EOF
 
   cat <<INFO
 ==============================
-Filebrowser 已安装并启动成功
+Filebrowser 已安装并配置成功
 ------------------------------
-监听: $ADDRESS:$LISTEN_PORT
+使用地址: $ADDRESS:$LISTEN_PORT
 语言: $FB_LOCALE
 用户名: $USERNAME
 密码: $PASSWORD
-日志路径: $LOG_PATH
-数据库文件: $DB_FILE
 安装目录: $BIN_PATH
+数据库文件: $DB_FILE
+日志路径: $LOG_PATH
 ==============================
 INFO
 fi
 
-######################################################
-# 额外功能：修改密码 / 添加用户 / 列出用户 / 升级
-######################################################
+####################################################################
+# 其他功能：修改管理员密码 / 添加普通新用户 / 列出用户 / 更新升级等功能
+####################################################################
+# 1、重置修改管理员密码
 
 if [[ "${1:-}" == "-pw" ]]; then
   systemctl stop filebrowser.service
@@ -104,6 +102,8 @@ if [[ "${1:-}" == "-pw" ]]; then
   echo "=============================="
   exit 0
 fi
+
+# 2 添加普通新用户
 
 if [[ "${1:-}" == "-add" ]]; then
   if [[ -z "${2:-}" || -z "${3:-}" ]]; then
@@ -123,6 +123,8 @@ if [[ "${1:-}" == "-add" ]]; then
   exit 0
 fi
 
+# 3、列出所有用户
+
 if [[ "${1:-}" == "-ls" ]]; then
   systemctl stop filebrowser.service
   echo "=============================="
@@ -133,7 +135,8 @@ if [[ "${1:-}" == "-ls" ]]; then
   exit 0
 fi
 
-# 升级更新 -upgrade 
+# 4、升级更新主程序 -upgrade 
+
 if [[ "${1:-}" == "-upgrade" ]]; then
   echo "检查当前版本..."
   RAW_VER=$("$BIN_PATH/filebrowser" version)
@@ -172,7 +175,7 @@ if [[ "${1:-}" == "-upgrade" ]]; then
   exit 0
 fi
 
-# 调整端口和切换 127.0.0.1/0.0.0.0/[::]
+# 5、调整端口和切换 127.0.0.1/0.0.0.0/[::]
 
 if [[ "${1:-}" == "-fix" ]]; then
   if [[ -z "${2:-}" || -z "${3:-}" ]]; then
