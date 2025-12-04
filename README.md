@@ -28,6 +28,9 @@ LOG_PATH=${LOG_PATH:-/var/log/filebrowser.log}
 `./filebrowser.sh -upgrade` 当有新版本可升级时，可升级更新，脚本会自动判断版本是否有更新，有则升级。   
 `./filebrowser.sh -pw` 当忘记默认生成的随机密码，可修改默认第一个用户即 admin 密码，如你不输入密码，脚本会自动生成新的16位密码并显示给你。   
 `./filebrowser.sh -ls` 可列出当前所有用户；     
-`./filebrowser.sh -add xxxx zzzzz` 可新增普通用户，其中 xxxx 为用户名 zzzzz 为密码。注意，密码需要足够复杂，否则会失败报错。   
+`./filebrowser.sh -add xxxx zzzzz` 可新增普通用户，其中 xxxx 为用户名 zzzzz 为密码。注意，密码需要足够复杂，否则会失败报错。  
+
+## 清理
+`systemctl stop filebrowser && rm -rf /etc/systemd/system/filebrowser.service && rm -rf /opt/filebrowser/filebrowser /opt/filebrowser/filebrowser.db`
 
 欢迎支持和使用
