@@ -1,0 +1,2 @@
+# filebrowser
+Filebrowser文件浏览器自动化安装更新脚本，配置好语言端口及密码，并设置systemctl自动启动等等
