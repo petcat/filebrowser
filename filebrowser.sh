@@ -167,3 +167,38 @@ if [[ "${1:-}" == "-upgrade" ]]; then
   fi
   exit 0
 fi
+
+# 调整端口和切换 127.0.0.1/0.0.0.0/[::]
+
+if [[ "${1:-}" == "-fix" ]]; then
+  if [[ -z "${2:-}" || -z "${3:-}" ]]; then
+    echo "用法: $0 -fix <addr_code> <port>"
+    echo "addr_code: 0=0.0.0.0, 1=127.0.0.1, 3=[::]"
+    exit 1
+  fi
+
+  ADDR_CODE="$2"
+  NEW_PORT="$3"
+
+  case "$ADDR_CODE" in
+    0) NEW_ADDR="0.0.0.0" ;;
+    1) NEW_ADDR="127.0.0.1" ;;
+    3) NEW_ADDR="[::]" ;;
+    *) echo "错误: addr_code 必须是 0, 1 或 3"; exit 1 ;;
+  esac
+
+  echo "停止服务..."
+  systemctl stop filebrowser.service
+
+  echo "更新配置: 地址=$NEW_ADDR 端口=$NEW_PORT"
+  "$BIN_PATH/filebrowser" -d "$DB_FILE" config set --address "$NEW_ADDR" --port "$NEW_PORT"
+
+  echo "启动服务..."
+  systemctl start filebrowser.service
+
+  echo "=============================="
+  echo "Filebrowser 配置已更新"
+  echo "监听: $NEW_ADDR:$NEW_PORT"
+  echo "=============================="
+  exit 0
+fi
