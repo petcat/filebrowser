@@ -1,5 +1,4 @@
 #!/bin/bash
-export LC_ALL=C
 set -euo pipefail    
 
 ######################################################
@@ -8,7 +7,7 @@ set -euo pipefail
 
 ADDRESS=${ADDRESS:-0.0.0.0}    # 可选：127.0.0.1 / 0.0.0.0 / [::]
 LISTEN_PORT=${LISTEN_PORT:-8090}
-LANGUAGE=${LANGUAGE:-zh-cn}
+FB_LOCALE=${FB_LOCALE:-zh-cn}
 LOG_PATH=${LOG_PATH:-/var/log/filebrowser.log}
 
 # 主程序路径，官方脚本默认为 /usr/local/bin/ 修改为 /opt/filebrowser/
@@ -60,7 +59,7 @@ EOF
   "$BIN_PATH/filebrowser" -d "$DB_FILE" config init \
     --address "$ADDRESS" \
     --port "$LISTEN_PORT" \
-    --locale "${LANGUAGE,,}" \
+    --locale "$FB_LOCALE" \
     --log "$LOG_PATH"
 
   # 交互式输入用户名和密码
